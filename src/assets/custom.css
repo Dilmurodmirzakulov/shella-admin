@@ -1,0 +1,43 @@
+.navbar-dropdown.dropdown-user .dropdown-toggle::after {
+  display: none !important;
+}
+
+.navbar-dropdown.dropdown-user .dropdown-toggle {
+  border-radius: 50%;
+  background-color: none;
+}
+.navbar-dropdown.dropdown-user .dropdown-toggle:hover {
+  background-color: none;
+}
+
+.regular-ic {
+  font-size: 24px;
+}
+
+.btn:active {
+  border-color: transparent;
+}
+
+.btn:focus {
+  border-color: transparent;
+}
+
+.hover-grey:hover {
+  background-color: rgba(67, 89, 113, 0.04);
+}
+
+.menu-toggle::after {
+  display: none;
+}
+
+.table-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  overflow: hidden;
+}
+.table-img img {
+  height: 100px;
+  width: auto;
+}

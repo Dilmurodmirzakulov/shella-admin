@@ -1,0 +1,103 @@
+.dropzone-wrapper section {
+  padding: 2rem 0;
+}
+
+.dropzone-wrapper label {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px dotted black;
+  border-width: 2px;
+  border-radius: 2px;
+  border-color: #eeeeee;
+  border-style: dashed;
+  background-color: #fafafa;
+  color: #bdbdbd;
+  outline: none;
+  transition: border 0.24s ease-in-out;
+  width: 100%;
+  height: 100px;
+  cursor: pointer;
+  font-size: large;
+}
+
+.dropzone-wrapper label span {
+  font-weight: lighter;
+  font-size: small;
+  padding-top: 0.5rem;
+}
+
+.dropzone-wrapper input {
+  display: none;
+}
+
+.dropzone-wrapper img {
+  padding: 0;
+  margin: 0;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.dropzone-wrapper .images {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropzone-wrapper .image {
+  margin: 1rem 0.5rem;
+  position: relative;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+}
+
+.dropzone-wrapper .image button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: pointer;
+  border: none;
+  color: white;
+  background-color: lightcoral;
+}
+
+.dropzone-wrapper .image button:hover {
+  background-color: red;
+}
+
+.dropzone-wrapper .image p {
+  padding: 0 0.5rem;
+  margin: 0;
+}
+
+.dropzone-wrapper .upload-btn {
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+  border: none;
+  border-radius: 20px;
+  width: 10rem;
+  height: 3rem;
+  color: white;
+  background-color: green;
+}
+
+.dropzone-wrapper label:hover,
+.dropzone-wrapper .upload-btn:hover {
+  /* box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px,
+    rgba(0, 0, 0, 0.05) 0px 4px 6px -2px; */
+    border-color: #999;
+    color: #999;
+}
+
+.dropzone-wrapper .error {
+  text-align: center;
+}
+
+.dropzone-wrapper .error span {
+  color: red;
+}
