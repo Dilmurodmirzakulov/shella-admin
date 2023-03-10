@@ -99,17 +99,19 @@ const Menu = () => {
                             <Collapse in={openRowId === group.id}>
                               <div id={`collapse-row-${group.id}`}>
                                 <div className="table-responsive text-nowrap">
-                                  {group.child.map((childGroup) => {
-                                    return (
-                                      <Table
-                                        striped
-                                        bordered
-                                        hover
-                                        variant="primary"
-                                        key={group.id + "group-child-row"}
-                                      >
-                                        <tbody>
+                                  <Table
+                                    striped
+                                    bordered
+                                    hover
+                                    variant="primary"
+                                  >
+                                    <tbody>
+                                      {group.child.map((childGroup) => {
+                                        return (
                                           <tr
+                                            key={
+                                              childGroup.id + "group-child-row"
+                                            }
                                             aria-controls={`collapse-row-${childGroup.id}`}
                                             aria-expanded={
                                               openRowId === group.id
@@ -161,10 +163,10 @@ const Menu = () => {
                                               <FiChevronDown className="opacity-0" />
                                             </td>
                                           </tr>
-                                        </tbody>
-                                      </Table>
-                                    );
-                                  })}
+                                        );
+                                      })}
+                                    </tbody>
+                                  </Table>
                                 </div>
                               </div>
                             </Collapse>

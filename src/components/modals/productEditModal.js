@@ -21,7 +21,7 @@ function ProductModal() {
 
   const [productData, setProductData] = useState({
     url: (shownProduct || {}).url || "",
-    price: 222,
+    price: (shownProduct || {}).price || "",
     seoDescription: (shownProduct || {}).seoDescription || "",
     seoKeywords: (shownProduct || {}).seoKeywords || "",
     seoText: (shownProduct || {}).seoText || "",
@@ -34,7 +34,7 @@ function ProductModal() {
     descriptionRu: (shownProduct || {}).descriptionRu || "",
     descriptionEn: (shownProduct || {}).descriptionEn || "",
     position: 0,
-    groupId: "",
+    groupId: (shownProduct || {}).groupId || "",
   });
 
   const hendleInput = (event) => {
@@ -58,7 +58,7 @@ function ProductModal() {
 
   const hendleSubmitData = (e) => {
     e.preventDefault();
-    console.log("wewe", productData);
+    // console.log("wewe", productData);
     axios
       .post("http://142.93.237.244:9090/v1/products", productData)
       .then((response) => setCreatedProduct(response.data.id))
@@ -105,7 +105,7 @@ function ProductModal() {
   }
   // console.log(selectedGroup);
   // console.log(groups);
-  console.log(productData);
+  // console.log(productData);
   return (
     <>
       <Modal

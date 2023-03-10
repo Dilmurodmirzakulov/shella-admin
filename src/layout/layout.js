@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     axios
-      .get("http://142.93.237.244:9090/v1/groups-by-filter")
+      .get("http://142.93.237.244:9090/v1/groups-by-filter?all=true")
       .then((response) => dispatch(fetchGroups(response.data)));
   }, []);
   return (
