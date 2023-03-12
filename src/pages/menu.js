@@ -1,14 +1,25 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { showGroup } from "../store/actions";
+import { showGroup, showGroupEdit } from "../store/actions";
 import { FiChevronDown } from "react-icons/fi";
 import { Table, Button, Collapse } from "react-bootstrap";
 import { useState } from "react";
 import { truncateString } from "../plugins/custom";
+import { BiEdit } from "react-icons/bi";
+import { AiOutlineDelete, AiOutlineFolderView } from "react-icons/ai";
+import axios from "axios";
 const Menu = () => {
   const dispatch = useDispatch();
   const [openRowId, setOpenRowId] = useState(null);
   const groups = useSelector((state) => state.groupsReducer);
+
+  const deleteGroup = (id) => {
+    console.log("delete");
+    axios
+      .delete(`http://142.93.237.244:9090/v1/groups/${id}`)
+      .then(() => window.location.reload())
+      .catch((err) => console.log(err));
+  };
   return (
     <div>
       <div className="content-wrapper">
@@ -19,9 +30,7 @@ const Menu = () => {
             <h4 className="fw-bold py-3 mb-0">Groups</h4>
             <button
               className="btn btn-primary"
-              onClick={(e) => {
-                dispatch(showGroup(null));
-              }}
+              onClick={() => dispatch(showGroup())}
             >
               Create group
             </button>
@@ -36,7 +45,7 @@ const Menu = () => {
                   <tr>
                     <th width="20%">Image</th>
                     <th width="20%">Name</th>
-                    <th width="20%">URL</th>
+                    <th width="20%">Parent</th>
                     <th width="15%">Position</th>
                     <th width="15%">Active</th>
                     <th width="10%">Edit</th>
@@ -56,13 +65,15 @@ const Menu = () => {
                           <div className="table-img">
                             <img
                               className="img-fluid"
-                              src={`http://142.93.237.244:9090/v1/public/groups/${group.image}`}
+                              src={`http://142.93.237.244:9090/v1/public/groups/${
+                                group.image || "no-image.jpg"
+                              }`}
                               alt=""
                             />
                           </div>
                         </td>
                         <td>{truncateString(group.nameUz, 50)}</td>
-                        <td>{truncateString(group.url, 50)}</td>
+                        <td>{truncateString(group.parentGroup, 50)}</td>
                         <td>
                           <span className="badge bg-label-primary me-1">
                             {group.position}
@@ -78,18 +89,30 @@ const Menu = () => {
                           </span>
                         </td>
                         <td>
-                          <Button
-                            variant="info"
-                            className="badge bg-label-info me-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              dispatch(showGroup(group));
-                            }}
-                          >
-                            Edit
-                          </Button>
+                          <div className="d-flex flex-row">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch(showGroupEdit(group));
+                              }}
+                              className="btn badge bg-label-info m-1"
+                            >
+                              <BiEdit className="regular-ic" />
+                            </button>
+                            <button
+                              className="btn badge bg-label-danger m-1"
+                              onClick={() => deleteGroup(group.id)}
+                            >
+                              <AiOutlineDelete className="regular-ic" />
+                            </button>
+                            <button className="btn badge bg-label-primary m-1">
+                              <AiOutlineFolderView className="regular-ic" />
+                            </button>
+                          </div>
                           <FiChevronDown
-                            className={`${!group.child.length && "opacity-0"}`}
+                            className={`${
+                              !group.child.length > 0 && "opacity-0"
+                            }`}
                           />
                         </td>
                       </tr>
@@ -127,10 +150,16 @@ const Menu = () => {
                                               </div>
                                             </td>
                                             <td width="20%">
-                                              {truncateString(childGroup.nameUz, 50)}
+                                              {truncateString(
+                                                childGroup.nameUz,
+                                                50
+                                              )}
                                             </td>
                                             <td width="20%">
-                                              {truncateString(childGroup.url, 50)}
+                                              {truncateString(
+                                                childGroup.url,
+                                                50
+                                              )}
                                             </td>
                                             <td width="15%">
                                               <span className="badge bg-label-primary me-1">
@@ -148,18 +177,25 @@ const Menu = () => {
                                               width="10%"
                                               className="border-end-0"
                                             >
-                                              <Button
-                                                variant="info"
-                                                className="badge bg-label-info me-1"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  dispatch(
-                                                    showGroup(childGroup)
-                                                  );
-                                                }}
-                                              >
-                                                Edit
-                                              </Button>
+                                              <div className="d-flex flex-row">
+                                                <button
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    dispatch(
+                                                      showGroupEdit(childGroup)
+                                                    );
+                                                  }}
+                                                  className="btn badge bg-label-info m-1"
+                                                >
+                                                  <BiEdit className="regular-ic" />
+                                                </button>
+                                                <button className="btn badge bg-label-danger m-1">
+                                                  <AiOutlineDelete className="regular-ic" />
+                                                </button>
+                                                <button className="btn badge bg-label-primary m-1">
+                                                  <AiOutlineFolderView className="regular-ic" />
+                                                </button>
+                                              </div>
                                               <FiChevronDown className="opacity-0" />
                                             </td>
                                           </tr>

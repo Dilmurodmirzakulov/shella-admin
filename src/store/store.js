@@ -28,13 +28,13 @@ export const states = {
 const modalsReducer = (state = states.modals, action) => {
   switch (action.type) {
     case "SHOW_GROUP":
-      return { ...state, groupModal: true, shownGroup: action.payload };
+      return { ...state, groupModal: true};
     case "CLOSE_GROUP":
-      return { ...state, groupModal: false, shownGroup: null };
+      return { ...state, groupModal: false};
     case "SHOW_PRODUCT":
-      return { ...state, productModal: true, shownProduct: action.payload };
+      return { ...state, productModal: true};
     case "CLOSE_PRODUCT":
-      return { ...state, productModal: false, shownProduct: null };
+      return { ...state, productModal: false};
     case "SHOW_GROUP_EDIT":
       return { ...state, groupEditModal: true, shownGroup: action.payload };
     case "CLOSE_GROUP_EDIT":

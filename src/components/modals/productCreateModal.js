@@ -19,21 +19,20 @@ function ProductModal() {
   const groups = useSelector((state) => state.groupsReducer);
 
   const [productData, setProductData] = useState({
-    url: (shownProduct || {}).url || "",
-    price: (shownProduct || {}).price || "",
-    seoDescription: (shownProduct || {}).seoDescription || "",
-    seoKeywords: (shownProduct || {}).seoKeywords || "",
-    seoText: (shownProduct || {}).seoText || "",
-    seoTitle: (shownProduct || {}).seoTitle || "",
-    enabled: true,
-    nameUz: (shownProduct || {}).nameUz || "",
-    nameRu: (shownProduct || {}).nameRu || "",
-    nameEn: (shownProduct || {}).nameEn || "",
-    descriptionUz: (shownProduct || {}).descriptionUz || "",
-    descriptionRu: (shownProduct || {}).descriptionRu || "",
-    descriptionEn: (shownProduct || {}).descriptionEn || "",
+    url: "",
+    price: "",
+    seoDescription: "",
+    seoKeywords: "",
+    seoText: "",
+    seoTitle: "",
+    enabled: "",
+    nameRu: "",
+    nameEn: "",
+    descriptionUz: "",
+    descriptionRu: "",
+    descriptionEn: "",
     position: 0,
-    groupId: (shownProduct || {}).groupId || "",
+    groupId: "",
   });
 
   const hendleInput = (event) => {
@@ -128,7 +127,6 @@ function ProductModal() {
                 id="group-url"
                 name="url"
                 placeholder="url-product"
-                defaultValue={(shownProduct || {}).url || ""}
                 onLoad={hendleInput}
                 onChange={(e) => hendleInput(e)}
               />
@@ -138,11 +136,7 @@ function ProductModal() {
               <p className="mb-2 form-labe">Product Group</p>
               <div className="row">
                 <div className="col-12 col-md-6">
-                  <select
-                    className="form-control"
-                    defaultValue={"DEFAULT"}
-                    onChange={getGroupValue}
-                  >
+                  <select className="form-control" onChange={getGroupValue}>
                     <option value="DEFAULT" disabled>
                       Select Group
                     </option>
@@ -164,7 +158,6 @@ function ProductModal() {
                   <div className="col-12 col-md-6">
                     <select
                       className="form-control"
-                      defaultValue={"DEFAULT2"}
                       onChange={getChildGroupValue}
                     >
                       <option value="DEFAULT2" disabled>
@@ -176,7 +169,6 @@ function ProductModal() {
                             <option
                               key={child.id + "select-option"}
                               value={child.id}
-                              // onClick={getGroupValue}
                             >
                               {child.nameUz}
                             </option>
@@ -185,25 +177,6 @@ function ProductModal() {
                     </select>
                   </div>
                 )}
-                {/* {!!selectedGroup &&
-                  ((selectedGroup || {}).child && []).length > 0 &&
-                  selectedGroup.child.map((child) => {
-                    return (
-                      <div className="col-12 col-md-6">
-                        <input
-                          className="form-control"
-                          type="text"
-                          id="group-url"
-                          placeholder="Parent group"
-                          name="groupId"
-                          defaultValue={(shownProduct || {}).groupId || ""}
-                          // value={shownProduct.url || ""}
-                          onChange={(e) => hendleInput(e)}
-                          onLoad={hendleInput}
-                        />
-                      </div>
-                    );
-                  })} */}
               </div>
             </div>
             <hr className="my-4" />
@@ -215,8 +188,6 @@ function ProductModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Maxsulot nomi"
-                defaultValue={(shownProduct || {}).nameUz || ""}
-                // defaultValue={nameUz}
                 name="nameUz"
                 onLoad={hendleInput}
                 onChange={(e) => hendleInput(e)}
@@ -228,8 +199,6 @@ function ProductModal() {
                 type="text"
                 className="form-control"
                 placeholder="Maxsulot tasnifi..."
-                defaultValue={(shownProduct || {}).descriptionUz || ""}
-                // defaultValue={descriptionUz}
                 name="descriptionUz"
                 onChange={(e) => hendleInput(e)}
               />
@@ -243,8 +212,6 @@ function ProductModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Product name"
-                defaultValue={(shownProduct || {}).nameRu || ""}
-                // value={nameRu}
                 name="nameRu"
                 onChange={(e) => hendleInput(e)}
               />
@@ -255,8 +222,6 @@ function ProductModal() {
                 type="text"
                 className="form-control"
                 placeholder="Product description..."
-                defaultValue={(shownProduct || {}).descriptionRu || ""}
-                // value={descriptionRu}
                 name="descriptionRu"
                 onChange={(e) => hendleInput(e)}
               />
@@ -270,8 +235,6 @@ function ProductModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Product name"
-                defaultValue={(shownProduct || {}).nameEu || ""}
-                // value={nameEn}
                 name="nameEn"
                 onChange={(e) => hendleInput(e)}
               />
@@ -282,8 +245,6 @@ function ProductModal() {
                 type="text"
                 className="form-control"
                 placeholder="Product description..."
-                defaultValue={(shownProduct || {}).descriptionEu || ""}
-                // value={descriptionEn}
                 name="descriptionEn"
                 onChange={(e) => hendleInput(e)}
               />
@@ -298,8 +259,6 @@ function ProductModal() {
                 id="group-position"
                 className="form-control"
                 placeholder="Group position"
-                // defaultValue={(shownProduct || {}).position || ""}
-                // value={position}
                 name="position"
                 onChange={(e) => hendleInput(e)}
               />
@@ -314,8 +273,6 @@ function ProductModal() {
                 id="product-price"
                 className="form-control"
                 placeholder="Product price"
-                // defaultValue={(shownProduct || {}).price || ""}
-                // value={price}
                 name="price"
                 onChange={(e) => hendleInput(e)}
               />
@@ -328,10 +285,6 @@ function ProductModal() {
                 name="enabled"
                 id="product-enabled"
                 className="form-check-input"
-                // defaultValue={(shownProduct || {}).enabled || ""}
-                // checked
-                // value={shownProduct.enabled}
-                // value={enabled}
                 value={true}
                 onChange={hendleInput}
               />
@@ -348,7 +301,6 @@ function ProductModal() {
                 className="form-check-input"
                 value={false}
                 onChange={hendleInput}
-                // value={shownProduct.enabled}
               />
               <label
                 htmlFor="product-disabled"

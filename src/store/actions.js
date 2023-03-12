@@ -117,10 +117,9 @@ export const fetchGroups = (arr) => {
 
 
 
-export const showGroup = (group) => {
+export const showGroup = () => {
   return{
     type: "SHOW_GROUP",
-    payload: group
   }
 }
 
@@ -129,10 +128,9 @@ export const closeGroup = () => {
     type: "CLOSE_GROUP",
   }
 }
-export const showProduct = (product) => {
+export const showProduct = () => {
   return{
     type: "SHOW_PRODUCT",
-    payload: product
   }
 }
 

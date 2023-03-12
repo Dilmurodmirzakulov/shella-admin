@@ -2,43 +2,34 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeGroup } from "../../store/actions";
-import {
-  AiOutlineDelete,
-  AiOutlineEye,
-  AiOutlineFolderView,
-} from "react-icons/ai";
+import { closeGroup, closeGroupEdit } from "../../store/actions";
+import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { Collapse, ModalFooter } from "react-bootstrap";
 import axios from "axios";
+import { getGroupNameById } from "../../plugins/custom";
 function GroupEditModal() {
   const dispatch = useDispatch();
   const { shownGroup } = useSelector((state) => state.modalsReducer);
   const { groupEditModal } = useSelector((state) => state.modalsReducer);
   const [open, setOpen] = useState(false);
   const groups = useSelector((state) => state.groupsReducer);
-  const [createdGroup, setCreatedGroup] = useState(null);
+  const [done, setDone] = useState(null);
 
-  // console.log(groups);
   const [groupData, setGroupData] = useState({
-    // id: "864f6ec8-536b-43c4-803a-d6e51b288ec2",
-    // url: "test",
-    nameUz: "",
-    nameRu: "",
-    nameEn: "",
-    descriptionUz: "",
-    descriptionRu: "",
-    descriptionEn: "",
-    position: null,
-    parentGroup: "0",
-    fileImage: "",
-    seoDescription: "",
-    seoKeywords: "",
-    seoText: "",
-    seoTitle: "",
-    enabled: true,
-    // createdAt: "2023-03-09 22:09:11",
-    // updatedAt: "",
-    // deletedAt: "",
+    nameUz: (shownGroup || {}).nameUz || "",
+    nameRu: (shownGroup || {}).nameRu || "",
+    nameEn: (shownGroup || {}).nameEn || "",
+    descriptionUz: (shownGroup || {}).descriptionUz || "",
+    descriptionRu: (shownGroup || {}).descriptionRu || "",
+    descriptionEn: (shownGroup || {}).descriptionEn || "",
+    position: (shownGroup || {}).position || 0,
+    parentGroup: (shownGroup || {}).parentGroup || "0",
+    fileImage: (shownGroup || {}).fileImage || "",
+    seoDescription: (shownGroup || {}).seoDescription || "",
+    seoKeywords: (shownGroup || {}).seoKeywords || "",
+    seoText: (shownGroup || {}).seoText || "",
+    seoTitle: (shownGroup || {}).seoTitle || "",
+    enabled: (shownGroup || {}).enabled || true,
   });
 
   const hendleInput = (event) => {
@@ -56,27 +47,53 @@ function GroupEditModal() {
         setGroupData({ ...groupData, enabled: false });
     }
     if (event.target.name === "fileImage") {
-      const formData = new FormData();
-      formData.append("fileImage", event.target.value);
-      setGroupData({ ...groupData, fileImage: formData });
+      setGroupData({ ...groupData, fileImage: event.target.files[0] });
     }
   };
 
   const hendleSubmitData = (e) => {
-    console.log(groupData);
+    let formData = new FormData();
+    !!groupData.nameUz && formData.append("nameUz", groupData.nameUz);
+    !!groupData.nameRu && formData.append("nameRu", groupData.nameRu);
+    !!groupData.nameEn && formData.append("nameEn", groupData.nameEn);
+    !!groupData.descriptionUz &&
+      formData.append("descriptionUz", groupData.descriptionUz);
+    !!groupData.descriptionRu &&
+      formData.append("descriptionRu", groupData.descriptionRu);
+    !!groupData.descriptionEn &&
+      formData.append("descriptionEn", groupData.descriptionEn);
+    !!groupData.position && formData.append("position", groupData.position);
+    !!groupData.parentGroup &&
+      formData.append("parentGroup", groupData.parentGroup);
+    !!groupData.fileImage && formData.append("fileImage", groupData.fileImage);
+    !!groupData.seoDescription &&
+      formData.append("seoDescription", groupData.seoDescription);
+    !!groupData.seoKeywords &&
+      formData.append("seoKeywords", groupData.seoKeywords);
+    !!groupData.seoKeywords &&
+      formData.append("seoText", groupData.seoKeywords);
+    !!groupData.seoKeywords &&
+      formData.append("seoTitle", groupData.seoKeywords);
+    !!groupData.seoKeywords &&
+      formData.append("enabled", groupData.seoKeywords);
     e.preventDefault();
+    console.log(formData);
     axios
-      .post("http://142.93.237.244:9090/v1/groups", groupData)
-      .then((response) => setCreatedGroup(response.data.id))
+      .put(`http://142.93.237.244:9090/v1/groups/${shownGroup.id}`, formData)
+      .then((response) => {
+        setDone(response.data.id);
+        console.log(response);
+      })
       .catch((error) => console.log(error));
   };
 
+  console.log(shownGroup);
   return (
     <>
       <Modal
         size="lg"
         show={groupEditModal}
-        onHide={() => dispatch(closeGroup())}
+        onHide={() => dispatch(closeGroupEdit())}
         aria-labelledby="example-modal-sizes-title-lg"
       >
         <Modal.Header closeButton>
@@ -86,7 +103,7 @@ function GroupEditModal() {
         </Modal.Header>
         <Modal.Body>
           <form>
-            <div>
+            {/* <div>
               <label className="mb-2 form-labe" htmlFor="group-url">
                 URL
               </label>
@@ -100,7 +117,7 @@ function GroupEditModal() {
                 onChange={hendleInput}
               />
             </div>
-            <hr className="my-4" />
+            <hr className="my-4" /> */}
             <div>
               <p className="mb-2 form-labe">Parent group</p>
               <div className="row">
@@ -109,19 +126,39 @@ function GroupEditModal() {
                     className="form-control"
                     onChange={hendleInput}
                     name="parentGroup"
+                    defaultValue={
+                      (shownGroup || {}).parentGroup !== "0" &&
+                      (shownGroup || {}).parentGroup
+                    }
                   >
                     <option value="0">No parent</option>
                     {!!groups &&
                       groups.length > 0 &&
                       groups.map((group) => {
-                        return (
-                          <option
-                            key={group.id + "select-option"}
-                            value={group.id}
-                          >
-                            {group.nameUz}
-                          </option>
-                        );
+                        if (
+                          (shownGroup || {}).parentGroup !== "0" &&
+                          (shownGroup || {}).parentGroup === group.parentGroup
+                        ) {
+                          return (
+                            <option
+                              key={group.id + "select-option"}
+                              value={group.id}
+                            >
+                              {group.nameUz}
+                            </option>
+                          );
+                        }
+                        if (group.parentGroup === "0") {
+                          return (
+                            <option
+                              key={group.id + "select-option"}
+                              value={group.id}
+                            >
+                              {group.nameUz}
+                            </option>
+                          );
+                        }
+                        return [];
                       })}
                   </select>
                 </div>
@@ -137,7 +174,6 @@ function GroupEditModal() {
                 className="form-control mb-2"
                 placeholder="Gruppa nomi"
                 defaultValue={(shownGroup || {}).nameUz || ""}
-                // value={shownGroup.nameUz}
                 name="nameUz"
                 onChange={hendleInput}
               />
@@ -149,7 +185,6 @@ function GroupEditModal() {
                 className="form-control"
                 placeholder="Gruppa tasnifi..."
                 defaultValue={(shownGroup || {}).descriptionUz || ""}
-                // value={shownGroup.descriptionUz}
                 onChange={hendleInput}
                 name="descriptionUz"
               />
@@ -164,7 +199,6 @@ function GroupEditModal() {
                 className="form-control mb-2"
                 placeholder="Group name"
                 defaultValue={(shownGroup || {}).nameRu || ""}
-                // value={shownGroup.nameRu}
                 onChange={hendleInput}
                 name="nameRu"
               />
@@ -176,7 +210,6 @@ function GroupEditModal() {
                 className="form-control"
                 placeholder="Group description..."
                 defaultValue={(shownGroup || {}).descriptionRu || ""}
-                // value={shownGroup.descriptionRu}
                 onChange={hendleInput}
                 name="descriptionRu"
               />
@@ -191,7 +224,6 @@ function GroupEditModal() {
                 className="form-control mb-2"
                 placeholder="Group name"
                 defaultValue={(shownGroup || {}).nameEu || ""}
-                // value={shownGroup.nameEu}
                 onChange={hendleInput}
                 name="nameEn"
               />
@@ -203,7 +235,6 @@ function GroupEditModal() {
                 className="form-control"
                 placeholder="Group description..."
                 defaultValue={(shownGroup || {}).descriptionEu || ""}
-                // value={shownGroup.descriptionEu}
                 onChange={hendleInput}
                 name="descriptionEn"
               />
@@ -219,7 +250,6 @@ function GroupEditModal() {
                 className="form-control"
                 placeholder="Group position"
                 defaultValue={(shownGroup || {}).position || ""}
-                // value={shownGroup.position}
                 onChange={hendleInput}
                 name="position"
               />
@@ -235,6 +265,7 @@ function GroupEditModal() {
                 // defaultValue={(shownGroup || {}).enabled || ""}
                 // checked
                 // value={shownGroup.enabled}
+                defaultChecked={(shownGroup || {}).enabled ? true : false}
                 value={true}
                 onChange={hendleInput}
               />
@@ -249,7 +280,7 @@ function GroupEditModal() {
                 name="enabled"
                 id="group-disabled"
                 className="form-check-input"
-                // value={shownGroup.enabled}
+                defaultChecked={!(shownGroup || {}).enabled ? true : false}
                 value={false}
                 onChange={hendleInput}
               />
@@ -278,8 +309,7 @@ function GroupEditModal() {
                     type="text"
                     className="form-control mb-2"
                     placeholder="SEO title"
-                    // defaultValue={(shownProduct || {}).nameEu || ""}
-                    // value={nameEn}
+                    defaultValue={(shownGroup || {}).seoTitle || ""}
                     name="seoTitle"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -290,8 +320,7 @@ function GroupEditModal() {
                     type="text"
                     className="form-control mb-2"
                     placeholder="SEO name"
-                    // defaultValue={(shownProduct || {}).nameEu || ""}
-                    // value={nameEn}
+                    defaultValue={(shownGroup || {}).seoText || ""}
                     name="seoText"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -302,8 +331,7 @@ function GroupEditModal() {
                     type="text"
                     className="form-control mb-2"
                     placeholder="SEO keywords"
-                    // defaultValue={(shownProduct || {}).nameEu || ""}
-                    // value={nameEn}
+                    defaultValue={(shownGroup || {}).seoKeywords || ""}
                     name="seoKeywords"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -314,8 +342,7 @@ function GroupEditModal() {
                     type="text"
                     className="form-control"
                     placeholder="SEO description..."
-                    // defaultValue={(shownProduct || {}).descriptionEu || ""}
-                    // value={descriptionEn}
+                    defaultValue={(shownGroup || {}).seoDescription || ""}
                     name="seoDescription"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -324,20 +351,7 @@ function GroupEditModal() {
             </div>
             <div>
               <hr className="my-4" />
-
-              <label htmlFor="group-image" className="mb-2 form-labe">
-                Group image
-              </label>
-              <input
-                type="file"
-                id="group-image"
-                name="fileImage"
-                className="form-control"
-                placeholder="Group image"
-                onChange={hendleInput}
-              />
-
-              {!!shownGroup && !!(shownGroup || {}).image && (
+              {!!shownGroup && !!(shownGroup || {}).image ? (
                 <div className="shown-group-image">
                   <img
                     className="img-fluid"
@@ -351,10 +365,24 @@ function GroupEditModal() {
                     <AiOutlineEye />
                   </button>
                 </div>
+              ) : (
+                <>
+                  <label htmlFor="group-image" className="mb-2 form-labe">
+                    Group image
+                  </label>
+                  <input
+                    type="file"
+                    id="group-image"
+                    name="fileImage"
+                    className="form-control"
+                    placeholder="Group image"
+                    onChange={hendleInput}
+                  />
+                </>
               )}
             </div>
             <ModalFooter>
-              {!!createdGroup && (
+              {!!done && (
                 <button
                   className="btn btn-primary"
                   type="submit"
@@ -363,7 +391,7 @@ function GroupEditModal() {
                   Finish
                 </button>
               )}
-              {!createdGroup && (
+              {!done && (
                 <>
                   <button className="btn btn-default" type="reset">
                     Cancel

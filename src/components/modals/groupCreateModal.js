@@ -17,10 +17,7 @@ function GroupModal() {
   const groups = useSelector((state) => state.groupsReducer);
   const [createdGroup, setCreatedGroup] = useState(null);
 
-  // console.log(groups);
   const [groupData, setGroupData] = useState({
-    // id: "864f6ec8-536b-43c4-803a-d6e51b288ec2",
-    // url: "test",
     nameUz: "",
     nameRu: "",
     nameEn: "",
@@ -35,9 +32,6 @@ function GroupModal() {
     seoText: "",
     seoTitle: "",
     enabled: true,
-    // createdAt: "2023-03-09 22:09:11",
-    // updatedAt: "",
-    // deletedAt: "",
   });
 
   const hendleInput = (event) => {
@@ -58,7 +52,6 @@ function GroupModal() {
       setGroupData({ ...groupData, fileImage: event.target.files[0] });
     }
   };
-
 
   const hendleSubmitData = (e) => {
     let formData = new FormData();
@@ -87,7 +80,7 @@ function GroupModal() {
       formData.append("enabled", groupData.seoKeywords);
     e.preventDefault();
     axios
-      .post("http://142.93.237.244:9090/v1/groups", formData, )
+      .post("http://142.93.237.244:9090/v1/groups", formData)
       .then((response) => {
         setCreatedGroup(response.data.id);
       })
@@ -109,19 +102,6 @@ function GroupModal() {
         </Modal.Header>
         <Modal.Body>
           <form>
-            <div>
-              <label className="mb-2 form-labe" htmlFor="group-url">
-                URL
-              </label>
-              <input
-                className="form-control"
-                type="text"
-                id="group-url"
-                placeholder="url-product"
-                name="url"
-                onChange={hendleInput}
-              />
-            </div>
             <hr className="my-4" />
             <div>
               <p className="mb-2 form-labe">Parent group</p>
@@ -136,29 +116,28 @@ function GroupModal() {
                     {!!groups &&
                       groups.length > 0 &&
                       groups.map((group) => {
-                        if (group.parentGroup == "0") {
+                        if (group.parentGroup === "0") {
                           return (
                             <option
                               key={group.id + "select-option"}
                               value={group.id}
-                              // group.parentGroup == '' && disabled
                             >
                               {group.nameUz}
                             </option>
                           );
                         }
-                        if (group.parentGroup != "0") {
+                        if (group.parentGroup !== "0") {
                           return (
                             <option
                               key={group.id + "select-option"}
                               value={group.id}
                               disabled
-                              // group.parentGroup == '' && disabled
                             >
                               {group.nameUz}
                             </option>
                           );
                         }
+                        return [];
                       })}
                   </select>
                 </div>

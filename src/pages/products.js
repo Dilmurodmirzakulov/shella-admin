@@ -9,11 +9,11 @@ import {
 import { Table } from "react-bootstrap";
 import axios from "axios";
 import { AiOutlineDelete, AiOutlineFolderView } from "react-icons/ai";
-import { truncateString } from "../plugins/custom";
+import { getGroup, truncateString } from "../plugins/custom";
 
 const Products = () => {
   const dispatch = useDispatch();
-
+  const groups = useSelector((state) => state.groupsReducer);
   useEffect(() => {
     axios
       .get(
@@ -22,6 +22,13 @@ const Products = () => {
       .then((response) => dispatch(fetchProducts(response.data)))
       .catch((error) => console.log(error));
   }, []);
+
+  const deleteProduct = (id) => {
+    axios
+      .delete(`http://142.93.237.244:9090/v1/products/${id}`)
+      .then(() => window.location.reload())
+      .catch((error) => console.log(error));
+  };
 
   const productsObj = useSelector((state) => state.productsReducer);
   return (
@@ -34,9 +41,7 @@ const Products = () => {
             <h4 className="fw-bold py-3 mb-0">Products</h4>
             <button
               className="btn btn-primary"
-              onClick={(e) => {
-                dispatch(showProduct());
-              }}
+              onClick={() => dispatch(showProduct())}
             >
               Create product
             </button>
@@ -51,7 +56,7 @@ const Products = () => {
                   <tr>
                     <th width="20%">Image</th>
                     <th width="20%">Name</th>
-                    <th width="20%">URL</th>
+                    <th width="20%">Group</th>
                     <th width="10%">Position</th>
                     <th width="10%">Active</th>
                     <th width="20%">Actions</th>
@@ -76,7 +81,10 @@ const Products = () => {
                             />
                           </td>
                           <td>{truncateString(product.nameUz, 50)}</td>
-                          <td>{truncateString(product.url, 50)}</td>
+                          <td>
+                            {getGroup(product.groupId, groups).nameUz ||
+                              "notfound"}
+                          </td>
                           <td>
                             <span className="badge bg-label-primary me-1">
                               {product.position}
@@ -94,13 +102,21 @@ const Products = () => {
                           <td>
                             <div className="d-flex flex-row">
                               <button
-                                onClick={() => dispatch(showProductEdit(product))}
+                                onClick={() =>
+                                  dispatch(showProductEdit(product))
+                                }
                                 className="btn badge bg-label-info m-1"
                               >
                                 <BiEdit className="regular-ic" />
                               </button>
                               <button className="btn badge bg-label-danger m-1">
-                                <AiOutlineDelete className="regular-ic" />
+                                <AiOutlineDelete
+                                  className="regular-ic"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteProduct(product.id);
+                                  }}
+                                />
                               </button>
                               <button className="btn badge bg-label-primary m-1">
                                 <AiOutlineFolderView className="regular-ic" />
