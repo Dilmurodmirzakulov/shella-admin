@@ -3,8 +3,10 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import AsideNav from "../components/asideNav";
 import MainNav from "../components/mainNav";
-import GroupModal from "../components/modals/groupEditModal";
-import ProductModal from "../components/modals/productEditModal";
+import GroupModal from "../components/modals/groupCreateModal";
+import GroupEditModal from "../components/modals/groupEditModal";
+import ProductModal from "../components/modals/productCreateModal";
+import ProductEditModal from "../components/modals/productEditModal";
 import { fetchGroups } from "../store/actions";
 
 const Layout = ({ children }) => {
@@ -26,6 +28,8 @@ const Layout = ({ children }) => {
         </div>
         <GroupModal />
         <ProductModal />
+        <GroupEditModal />
+        <ProductEditModal />
       </div>
     </>
   );

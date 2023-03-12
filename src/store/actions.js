@@ -141,3 +141,29 @@ export const closeProduct = () => {
     type: "CLOSE_PRODUCT",
   }
 }
+
+export const showGroupEdit = (group) => {
+  return{
+    type: "SHOW_GROUP_EDIT",
+    payload: group
+  }
+}
+
+export const closeGroupEdit = () => {
+  return{
+    type: "CLOSE_GROUP_EDIT",
+  }
+}
+export const showProductEdit = (product) => {
+  // console.log("first")
+  return{
+    type: "SHOW_PRODUCT_EDIT",
+    payload: product
+  }
+}
+
+export const closeProductEdit = () => {
+  return{
+    type: "CLOSE_PRODUCT_EDIT",
+  }
+}

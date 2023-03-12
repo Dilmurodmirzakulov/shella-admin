@@ -14,6 +14,8 @@ export const states = {
     productModal: false,
     shownGroup: null,
     shownProduct: null,
+    productEditModal: null,
+    groupEditModal: null,
   },
   products: [],
   cart: [],
@@ -33,6 +35,14 @@ const modalsReducer = (state = states.modals, action) => {
       return { ...state, productModal: true, shownProduct: action.payload };
     case "CLOSE_PRODUCT":
       return { ...state, productModal: false, shownProduct: null };
+    case "SHOW_GROUP_EDIT":
+      return { ...state, groupEditModal: true, shownGroup: action.payload };
+    case "CLOSE_GROUP_EDIT":
+      return { ...state, groupEditModal: false, shownGroup: null };
+    case "SHOW_PRODUCT_EDIT":
+      return { ...state, productEditModal: true, shownProduct: action.payload };
+    case "CLOSE_PRODUCT_EDIT":
+      return { ...state, productEditModal: false, shownProduct: null };
 
     case "SHOW_CART":
       return { ...state, cartModal: true };

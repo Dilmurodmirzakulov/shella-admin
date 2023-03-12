@@ -10,10 +10,9 @@ import {
 } from "react-icons/ai";
 import { Collapse, ModalFooter } from "react-bootstrap";
 import axios from "axios";
-function GroupEditModal() {
+function GroupModal() {
   const dispatch = useDispatch();
-  const { shownGroup } = useSelector((state) => state.modalsReducer);
-  const { groupEditModal } = useSelector((state) => state.modalsReducer);
+  const { groupModal } = useSelector((state) => state.modalsReducer);
   const [open, setOpen] = useState(false);
   const groups = useSelector((state) => state.groupsReducer);
   const [createdGroup, setCreatedGroup] = useState(null);
@@ -28,7 +27,7 @@ function GroupEditModal() {
     descriptionUz: "",
     descriptionRu: "",
     descriptionEn: "",
-    position: null,
+    position: 0,
     parentGroup: "0",
     fileImage: "",
     seoDescription: "",
@@ -56,18 +55,42 @@ function GroupEditModal() {
         setGroupData({ ...groupData, enabled: false });
     }
     if (event.target.name === "fileImage") {
-      const formData = new FormData();
-      formData.append("fileImage", event.target.value);
-      setGroupData({ ...groupData, fileImage: formData });
+      setGroupData({ ...groupData, fileImage: event.target.files[0] });
     }
   };
 
+
   const hendleSubmitData = (e) => {
-    console.log(groupData);
+    let formData = new FormData();
+    !!groupData.nameUz && formData.append("nameUz", groupData.nameUz);
+    !!groupData.nameRu && formData.append("nameRu", groupData.nameRu);
+    !!groupData.nameEn && formData.append("nameEn", groupData.nameEn);
+    !!groupData.descriptionUz &&
+      formData.append("descriptionUz", groupData.descriptionUz);
+    !!groupData.descriptionRu &&
+      formData.append("descriptionRu", groupData.descriptionRu);
+    !!groupData.descriptionEn &&
+      formData.append("descriptionEn", groupData.descriptionEn);
+    !!groupData.position && formData.append("position", groupData.position);
+    !!groupData.parentGroup &&
+      formData.append("parentGroup", groupData.parentGroup);
+    !!groupData.fileImage && formData.append("fileImage", groupData.fileImage);
+    !!groupData.seoDescription &&
+      formData.append("seoDescription", groupData.seoDescription);
+    !!groupData.seoKeywords &&
+      formData.append("seoKeywords", groupData.seoKeywords);
+    !!groupData.seoKeywords &&
+      formData.append("seoText", groupData.seoKeywords);
+    !!groupData.seoKeywords &&
+      formData.append("seoTitle", groupData.seoKeywords);
+    !!groupData.seoKeywords &&
+      formData.append("enabled", groupData.seoKeywords);
     e.preventDefault();
     axios
-      .post("http://142.93.237.244:9090/v1/groups", groupData)
-      .then((response) => setCreatedGroup(response.data.id))
+      .post("http://142.93.237.244:9090/v1/groups", formData, )
+      .then((response) => {
+        setCreatedGroup(response.data.id);
+      })
       .catch((error) => console.log(error));
   };
 
@@ -75,13 +98,13 @@ function GroupEditModal() {
     <>
       <Modal
         size="lg"
-        show={groupEditModal}
+        show={groupModal}
         onHide={() => dispatch(closeGroup())}
         aria-labelledby="example-modal-sizes-title-lg"
       >
         <Modal.Header closeButton>
           <Modal.Title id="example-modal-sizes-title-lg">
-            {!shownGroup ? "Create group" : "Edit group"}
+            Create group
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -95,7 +118,6 @@ function GroupEditModal() {
                 type="text"
                 id="group-url"
                 placeholder="url-product"
-                defaultValue={(shownGroup || {}).url || ""}
                 name="url"
                 onChange={hendleInput}
               />
@@ -114,14 +136,29 @@ function GroupEditModal() {
                     {!!groups &&
                       groups.length > 0 &&
                       groups.map((group) => {
-                        return (
-                          <option
-                            key={group.id + "select-option"}
-                            value={group.id}
-                          >
-                            {group.nameUz}
-                          </option>
-                        );
+                        if (group.parentGroup == "0") {
+                          return (
+                            <option
+                              key={group.id + "select-option"}
+                              value={group.id}
+                              // group.parentGroup == '' && disabled
+                            >
+                              {group.nameUz}
+                            </option>
+                          );
+                        }
+                        if (group.parentGroup != "0") {
+                          return (
+                            <option
+                              key={group.id + "select-option"}
+                              value={group.id}
+                              disabled
+                              // group.parentGroup == '' && disabled
+                            >
+                              {group.nameUz}
+                            </option>
+                          );
+                        }
                       })}
                   </select>
                 </div>
@@ -136,8 +173,6 @@ function GroupEditModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Gruppa nomi"
-                defaultValue={(shownGroup || {}).nameUz || ""}
-                // value={shownGroup.nameUz}
                 name="nameUz"
                 onChange={hendleInput}
               />
@@ -148,8 +183,6 @@ function GroupEditModal() {
                 type="text"
                 className="form-control"
                 placeholder="Gruppa tasnifi..."
-                defaultValue={(shownGroup || {}).descriptionUz || ""}
-                // value={shownGroup.descriptionUz}
                 onChange={hendleInput}
                 name="descriptionUz"
               />
@@ -163,8 +196,6 @@ function GroupEditModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Group name"
-                defaultValue={(shownGroup || {}).nameRu || ""}
-                // value={shownGroup.nameRu}
                 onChange={hendleInput}
                 name="nameRu"
               />
@@ -175,8 +206,6 @@ function GroupEditModal() {
                 type="text"
                 className="form-control"
                 placeholder="Group description..."
-                defaultValue={(shownGroup || {}).descriptionRu || ""}
-                // value={shownGroup.descriptionRu}
                 onChange={hendleInput}
                 name="descriptionRu"
               />
@@ -190,8 +219,6 @@ function GroupEditModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Group name"
-                defaultValue={(shownGroup || {}).nameEu || ""}
-                // value={shownGroup.nameEu}
                 onChange={hendleInput}
                 name="nameEn"
               />
@@ -202,8 +229,6 @@ function GroupEditModal() {
                 type="text"
                 className="form-control"
                 placeholder="Group description..."
-                defaultValue={(shownGroup || {}).descriptionEu || ""}
-                // value={shownGroup.descriptionEu}
                 onChange={hendleInput}
                 name="descriptionEn"
               />
@@ -218,8 +243,6 @@ function GroupEditModal() {
                 id="group-position"
                 className="form-control"
                 placeholder="Group position"
-                defaultValue={(shownGroup || {}).position || ""}
-                // value={shownGroup.position}
                 onChange={hendleInput}
                 name="position"
               />
@@ -232,9 +255,6 @@ function GroupEditModal() {
                 name="enabled"
                 id="group-enabled"
                 className="form-check-input"
-                // defaultValue={(shownGroup || {}).enabled || ""}
-                // checked
-                // value={shownGroup.enabled}
                 value={true}
                 onChange={hendleInput}
               />
@@ -249,7 +269,6 @@ function GroupEditModal() {
                 name="enabled"
                 id="group-disabled"
                 className="form-check-input"
-                // value={shownGroup.enabled}
                 value={false}
                 onChange={hendleInput}
               />
@@ -278,8 +297,6 @@ function GroupEditModal() {
                     type="text"
                     className="form-control mb-2"
                     placeholder="SEO title"
-                    // defaultValue={(shownProduct || {}).nameEu || ""}
-                    // value={nameEn}
                     name="seoTitle"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -290,8 +307,6 @@ function GroupEditModal() {
                     type="text"
                     className="form-control mb-2"
                     placeholder="SEO name"
-                    // defaultValue={(shownProduct || {}).nameEu || ""}
-                    // value={nameEn}
                     name="seoText"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -302,8 +317,6 @@ function GroupEditModal() {
                     type="text"
                     className="form-control mb-2"
                     placeholder="SEO keywords"
-                    // defaultValue={(shownProduct || {}).nameEu || ""}
-                    // value={nameEn}
                     name="seoKeywords"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -314,8 +327,6 @@ function GroupEditModal() {
                     type="text"
                     className="form-control"
                     placeholder="SEO description..."
-                    // defaultValue={(shownProduct || {}).descriptionEu || ""}
-                    // value={descriptionEn}
                     name="seoDescription"
                     onChange={(e) => hendleInput(e)}
                   />
@@ -336,22 +347,6 @@ function GroupEditModal() {
                 placeholder="Group image"
                 onChange={hendleInput}
               />
-
-              {!!shownGroup && !!(shownGroup || {}).image && (
-                <div className="shown-group-image">
-                  <img
-                    className="img-fluid"
-                    src={`http://142.93.237.244:9090/v1/public/groups/${shownGroup.image}`}
-                    alt=""
-                  />
-                  <button className="btn bg-label-danger delete-btn">
-                    <AiOutlineDelete />
-                  </button>
-                  <button className="btn bg-label-info view-btn">
-                    <AiOutlineEye />
-                  </button>
-                </div>
-              )}
             </div>
             <ModalFooter>
               {!!createdGroup && (
@@ -385,4 +380,4 @@ function GroupEditModal() {
   );
 }
 
-export default GroupEditModal;
+export default GroupModal;

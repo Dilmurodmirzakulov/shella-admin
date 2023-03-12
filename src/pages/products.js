@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, showGroup, showProduct } from "../store/actions";
+import { fetchProducts, showProduct, showProductEdit } from "../store/actions";
 import { BiEdit } from "react-icons/bi";
 import {
   HiOutlineChevronDoubleLeft,
@@ -9,6 +9,7 @@ import {
 import { Table } from "react-bootstrap";
 import axios from "axios";
 import { AiOutlineDelete, AiOutlineFolderView } from "react-icons/ai";
+import { truncateString } from "../plugins/custom";
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -44,7 +45,7 @@ const Products = () => {
           {/* <!-- Basic Bootstrap Table --> */}
           <div className="card">
             <h5 className="card-header">Products Table</h5>
-            <div className="table-responsive text-nowrap">
+            <div className="table-responsive text-wrap">
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -74,8 +75,8 @@ const Products = () => {
                               alt=""
                             />
                           </td>
-                          <td>{product.nameUz}</td>
-                          <td>{product.url}</td>
+                          <td>{truncateString(product.nameUz, 50)}</td>
+                          <td>{truncateString(product.url, 50)}</td>
                           <td>
                             <span className="badge bg-label-primary me-1">
                               {product.position}
@@ -91,18 +92,20 @@ const Products = () => {
                             </span>
                           </td>
                           <td>
-                            <button
-                              onClick={() => dispatch(showProduct(product))}
-                              className="btn badge bg-label-info me-1"
-                            >
-                              <BiEdit className="regular-ic" />
-                            </button>
-                            <button className="btn badge bg-label-danger me-1">
-                              <AiOutlineDelete className="regular-ic" />
-                            </button>
-                            <button className="btn badge bg-label-primary me-1">
-                              <AiOutlineFolderView className="regular-ic" />
-                            </button>
+                            <div className="d-flex flex-row">
+                              <button
+                                onClick={() => dispatch(showProductEdit(product))}
+                                className="btn badge bg-label-info m-1"
+                              >
+                                <BiEdit className="regular-ic" />
+                              </button>
+                              <button className="btn badge bg-label-danger m-1">
+                                <AiOutlineDelete className="regular-ic" />
+                              </button>
+                              <button className="btn badge bg-label-primary m-1">
+                                <AiOutlineFolderView className="regular-ic" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       </tbody>

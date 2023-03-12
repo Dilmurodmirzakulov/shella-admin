@@ -2,19 +2,19 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeProduct, closeProductEdit } from "../../store/actions";
+import { closeProduct } from "../../store/actions";
 import Collapse from "react-bootstrap/Collapse";
 import { ModalFooter } from "react-bootstrap";
 import axios from "axios";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
-function ProductEditModal() {
+function ProductModal() {
   const [prImage, setPrImage] = useState(null);
   const [groupValue, setGroupValue] = useState(null);
   const [createdImage, setCreatedImage] = useState();
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { shownProduct } = useSelector((state) => state.modalsReducer);
-  const { productEditModal } = useSelector((state) => state.modalsReducer);
+  const { productModal } = useSelector((state) => state.modalsReducer);
   const [createdProduct, setCreatedProduct] = useState(null);
   const groups = useSelector((state) => state.groupsReducer);
 
@@ -65,7 +65,7 @@ function ProductEditModal() {
 
   const getImage = (event) => {
     const file = event.target.files[0];
-    setPrImage(file); 
+    setPrImage(file);
   };
 
   const uploadImage = (imageFile, productId) => {
@@ -74,7 +74,11 @@ function ProductEditModal() {
     formData.append("fileImage", imageFile);
 
     axios
-      .post("http://142.93.237.244:9090/v1/product-images", formData)
+      .post("http://142.93.237.244:9090/v1/product-images", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
         console.log("Success", response);
         setCreatedImage((x) =>
@@ -103,13 +107,13 @@ function ProductEditModal() {
     <>
       <Modal
         size="lg"
-        show={productEditModal}
-        onHide={() => dispatch(closeProductEdit())}
+        show={productModal}
+        onHide={() => dispatch(closeProduct())}
         aria-labelledby="example-modal-sizes-title-lg"
       >
         <Modal.Header closeButton>
           <Modal.Title id="example-modal-sizes-title-lg">
-            Edit product
+            {!shownProduct ? "Create product" : "Edit product"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -521,4 +525,4 @@ function ProductEditModal() {
   );
 }
 
-export default ProductEditModal;
+export default ProductModal;

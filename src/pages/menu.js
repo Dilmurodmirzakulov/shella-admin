@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGroups, showGroup } from "../store/actions";
+import { showGroup } from "../store/actions";
 import { FiChevronDown } from "react-icons/fi";
-import axios from "axios";
 import { Table, Button, Collapse } from "react-bootstrap";
 import { useState } from "react";
+import { truncateString } from "../plugins/custom";
 const Menu = () => {
   const dispatch = useDispatch();
   const [openRowId, setOpenRowId] = useState(null);
@@ -30,8 +30,8 @@ const Menu = () => {
           {/* <!-- Basic Bootstrap Table --> */}
           <div className="card">
             <h5 className="card-header">Table Basic</h5>
-            <div className="table-responsive text-nowrap">
-              <Table striped bordered hover>
+            <div className="table-responsive text-wrap">
+              <Table striped bordered hover responsive>
                 <thead>
                   <tr>
                     <th width="20%">Image</th>
@@ -61,8 +61,8 @@ const Menu = () => {
                             />
                           </div>
                         </td>
-                        <td>{group.nameUz}</td>
-                        <td>{group.url}</td>
+                        <td>{truncateString(group.nameUz, 50)}</td>
+                        <td>{truncateString(group.url, 50)}</td>
                         <td>
                           <span className="badge bg-label-primary me-1">
                             {group.position}
@@ -127,10 +127,10 @@ const Menu = () => {
                                               </div>
                                             </td>
                                             <td width="20%">
-                                              {childGroup.nameUz}
+                                              {truncateString(childGroup.nameUz, 50)}
                                             </td>
                                             <td width="20%">
-                                              {childGroup.url}
+                                              {truncateString(childGroup.url, 50)}
                                             </td>
                                             <td width="15%">
                                               <span className="badge bg-label-primary me-1">
