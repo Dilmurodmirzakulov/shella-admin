@@ -16,6 +16,8 @@ export const states = {
     shownProduct: null,
     productEditModal: null,
     groupEditModal: null,
+    shownImage: null,
+    imageModal: false,
   },
   products: [],
   cart: [],
@@ -23,18 +25,19 @@ export const states = {
   prAlertShow: false,
   groups: [],
   productsObj: {},
+  adminAuth: false,
 };
 
 const modalsReducer = (state = states.modals, action) => {
   switch (action.type) {
     case "SHOW_GROUP":
-      return { ...state, groupModal: true};
+      return { ...state, groupModal: true };
     case "CLOSE_GROUP":
-      return { ...state, groupModal: false};
+      return { ...state, groupModal: false };
     case "SHOW_PRODUCT":
-      return { ...state, productModal: true};
+      return { ...state, productModal: true };
     case "CLOSE_PRODUCT":
-      return { ...state, productModal: false};
+      return { ...state, productModal: false };
     case "SHOW_GROUP_EDIT":
       return { ...state, groupEditModal: true, shownGroup: action.payload };
     case "CLOSE_GROUP_EDIT":
@@ -68,6 +71,10 @@ const modalsReducer = (state = states.modals, action) => {
       return { ...state, favoritesModal: true };
     case "CLOSE_FAVORITES":
       return { ...state, favoritesModal: false };
+    case "SHOW_IMAGE":
+      return { ...state, imageModal: true, shownImage: action.payload };
+    case "CLOSE_IMAGE":
+      return { ...state, imageModal: false, shownImage: null };
     default:
       return state;
   }
@@ -159,12 +166,24 @@ const groupsReducer = (state = states.groups, action) => {
       return state;
   }
 };
+
+const adminAuthReducer = (state = states.adminAuth, action) => {
+  switch (action.type) {
+    case "LOGIN":
+      return { ...state, ...action.payload };
+    case "LOGOUT":
+      return false;
+    default:
+      return state;
+  }
+};
 const reducers = combineReducers({
   cartReducer,
   modalsReducer,
   favoritesReducer,
   productsReducer,
   groupsReducer,
+  adminAuthReducer,
 });
 
 export default configureStore({

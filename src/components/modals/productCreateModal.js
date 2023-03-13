@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeProduct } from "../../store/actions";
+import { closeProduct, fetchProducts, showImage } from "../../store/actions";
 import Collapse from "react-bootstrap/Collapse";
 import { ModalFooter } from "react-bootstrap";
 import axios from "axios";
@@ -19,19 +19,19 @@ function ProductModal() {
   const groups = useSelector((state) => state.groupsReducer);
 
   const [productData, setProductData] = useState({
-    url: "",
-    price: "",
+    price: 1,
     seoDescription: "",
     seoKeywords: "",
     seoText: "",
     seoTitle: "",
-    enabled: "",
+    enabled: true,
+    nameUz: "",
     nameRu: "",
     nameEn: "",
     descriptionUz: "",
     descriptionRu: "",
     descriptionEn: "",
-    position: 0,
+    position: 1,
     groupId: "",
   });
 
@@ -58,7 +58,25 @@ function ProductModal() {
     e.preventDefault();
     axios
       .post("http://142.93.237.244:9090/v1/products", productData)
-      .then((response) => setCreatedProduct(response.data.id))
+      .then((response) => {
+        setCreatedProduct(response.data.id);
+        setProductData({
+          price: 1,
+          seoDescription: "",
+          seoKeywords: "",
+          seoText: "",
+          seoTitle: "",
+          enabled: true,
+          nameUz: "",
+          nameRu: "",
+          nameEn: "",
+          descriptionUz: "",
+          descriptionRu: "",
+          descriptionEn: "",
+          position: 1,
+          groupId: "",
+        });
+      })
       .catch((error) => console.log(error));
   };
 
@@ -71,7 +89,6 @@ function ProductModal() {
     const formData = new FormData();
     formData.append("productId", productId);
     formData.append("fileImage", imageFile);
-
     axios
       .post("http://142.93.237.244:9090/v1/product-images", formData, {
         headers: {
@@ -80,13 +97,26 @@ function ProductModal() {
       })
       .then((response) => {
         console.log("Success", response);
-        setCreatedImage((x) =>
-          !!x ? [...x, response.data.image] : [response.data.image]
-        );
+        setCreatedImage((x) => (!!x ? [...x, response.data] : [response.data]));
       })
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  const deleteImage = (image) => {
+    axios
+      .delete(`http://142.93.237.244:9090/v1/product-images/${image}`)
+      .then((response) => {
+        console.log(response.data);
+        axios
+          .get(
+            "http://142.93.237.244:9090/v1/products-by-filter?all=true&page=1&pageSize=20"
+          )
+          .then((response) => dispatch(fetchProducts(response.data)))
+          .catch((error) => console.log(error));
+      })
+      .catch((error) => console.log(error));
   };
 
   const getGroupValue = (event) => {
@@ -117,7 +147,7 @@ function ProductModal() {
         </Modal.Header>
         <Modal.Body>
           <form>
-            <div>
+            {/* <div>
               <label className="mb-2 form-labe" htmlFor="group-url">
                 URL
               </label>
@@ -131,12 +161,17 @@ function ProductModal() {
                 onChange={(e) => hendleInput(e)}
               />
             </div>
-            <hr className="my-4" />
+            <hr className="my-4" /> */}
             <div>
               <p className="mb-2 form-labe">Product Group</p>
               <div className="row">
                 <div className="col-12 col-md-6">
-                  <select className="form-control" onChange={getGroupValue}>
+                  <select
+                    className="form-control"
+                    defaultValue="DEFAULT"
+                    onChange={getGroupValue}
+                    required
+                  >
                     <option value="DEFAULT" disabled>
                       Select Group
                     </option>
@@ -186,6 +221,7 @@ function ProductModal() {
               </label>
               <input
                 type="text"
+                required
                 className="form-control mb-2"
                 placeholder="Maxsulot nomi"
                 name="nameUz"
@@ -197,6 +233,7 @@ function ProductModal() {
               </label>
               <textarea
                 type="text"
+                required
                 className="form-control"
                 placeholder="Maxsulot tasnifi..."
                 name="descriptionUz"
@@ -373,7 +410,6 @@ function ProductModal() {
 
             {(!!createdProduct || !!shownProduct) && (
               <div>
-                l
                 <hr className="my-4" />
                 <label htmlFor="group-image" className="mb-2 form-labe">
                   Product image
@@ -392,7 +428,7 @@ function ProductModal() {
                         <div
                           className="shown-group-image me-3"
                           key={
-                            image +
+                            image.id +
                             `${createdProduct || shownProduct.id || "55"}`
                           }
                         >
@@ -404,35 +440,63 @@ function ProductModal() {
                           <button className="btn bg-label-danger delete-btn">
                             <AiOutlineDelete />
                           </button>
-                          <button className="btn bg-label-info view-btn">
+                          <div
+                            className="btn bg-label-info view-btn"
+                            onClick={(e) => {
+                              // e.stopPropagation();
+                              e.preventDefault();
+                              dispatch(
+                                showImage(
+                                  `http://142.93.237.244:9090/v1/public/products/${image.image}`
+                                )
+                              );
+                            }}
+                          >
                             <AiOutlineEye />
-                          </button>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
-                {!!createdImage && createdImage.length > 0 && (
-                  <div className="d-flex mr-3">
-                    {createdImage.map((image) => {
-                      return (
-                        <div className="shown-group-image me-3">
-                          <img
-                            className="img-fluid"
-                            src={`http://142.93.237.244:9090/v1/public/products/${image}`}
-                            alt=""
-                          />
-                          <button className="btn bg-label-danger delete-btn">
-                            <AiOutlineDelete />
-                          </button>
-                          <button className="btn bg-label-info view-btn">
-                            <AiOutlineEye />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {!!createdImage &&
+                  createdImage.length > 0 &&
+                  createdImage.map((image) => {
+                    return (
+                      <div className="shown-group-image me-3">
+                        <img
+                          className="img-fluid"
+                          src={`http://142.93.237.244:9090/v1/public/products/${image.image}`}
+                          alt=""
+                        />
+                        <button
+                          className="btn bg-label-danger delete-btn"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            deleteImage(image.id);
+                            dispatch(closeProduct());
+                            setCreatedImage();
+                          }}
+                        >
+                          <AiOutlineDelete />
+                        </button>
+                        <button
+                          className="btn bg-label-info view-btn"
+                          onClick={(e) => {
+                            // e.stopPropagation();
+                            e.preventDefault();
+                            dispatch(
+                              showImage(
+                                `http://142.93.237.244:9090/v1/public/products/${image.image}`
+                              )
+                            );
+                          }}
+                        >
+                          <AiOutlineEye />
+                        </button>
+                      </div>
+                    );
+                  })}
                 {!!prImage && !!createdProduct && (
                   <button
                     className="btn btn-primary mt-4"

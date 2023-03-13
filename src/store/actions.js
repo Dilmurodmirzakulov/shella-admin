@@ -115,53 +115,77 @@ export const fetchGroups = (arr) => {
   };
 };
 
-
-
 export const showGroup = () => {
-  return{
+  return {
     type: "SHOW_GROUP",
-  }
-}
+  };
+};
 
 export const closeGroup = () => {
-  return{
+  return {
     type: "CLOSE_GROUP",
-  }
-}
+  };
+};
 export const showProduct = () => {
-  return{
+  return {
     type: "SHOW_PRODUCT",
-  }
-}
+  };
+};
 
 export const closeProduct = () => {
-  return{
+  return {
     type: "CLOSE_PRODUCT",
-  }
-}
+  };
+};
 
 export const showGroupEdit = (group) => {
-  return{
+  return {
     type: "SHOW_GROUP_EDIT",
-    payload: group
-  }
-}
+    payload: group,
+  };
+};
 
 export const closeGroupEdit = () => {
-  return{
+  return {
     type: "CLOSE_GROUP_EDIT",
-  }
-}
+  };
+};
 export const showProductEdit = (product) => {
   // console.log("first")
-  return{
+  return {
     type: "SHOW_PRODUCT_EDIT",
-    payload: product
-  }
-}
+    payload: product,
+  };
+};
 
 export const closeProductEdit = () => {
-  return{
+  return {
     type: "CLOSE_PRODUCT_EDIT",
-  }
-}
+  };
+};
+
+export const login = (data) => {
+  return {
+    type: "LOGIN",
+    payload: data,
+  };
+};
+
+export const logout = () => {
+  return {
+    type: "LOGOUT",
+  };
+};
+
+export const showImage = (image) => {
+  return {
+    type: "SHOW_IMAGE",
+    payload: image,
+  };
+};
+
+export const closeImage = () => {
+  return {
+    type: "CLOSE_IMAGE",
+  };
+};

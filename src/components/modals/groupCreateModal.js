@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeGroup } from "../../store/actions";
+import { closeGroup, fetchGroups } from "../../store/actions";
 import {
   AiOutlineDelete,
   AiOutlineEye,
@@ -15,7 +15,7 @@ function GroupModal() {
   const { groupModal } = useSelector((state) => state.modalsReducer);
   const [open, setOpen] = useState(false);
   const groups = useSelector((state) => state.groupsReducer);
-  const [createdGroup, setCreatedGroup] = useState(null);
+  // const [createdGroup, setCreatedGroup] = useState(null);
 
   const [groupData, setGroupData] = useState({
     nameUz: "",
@@ -24,7 +24,7 @@ function GroupModal() {
     descriptionUz: "",
     descriptionRu: "",
     descriptionEn: "",
-    position: 0,
+    position: 1,
     parentGroup: "0",
     fileImage: "",
     seoDescription: "",
@@ -36,12 +36,12 @@ function GroupModal() {
 
   const hendleInput = (event) => {
     setGroupData({ ...groupData, [event.target.name]: event.target.value });
-    if (event.target.name === "position") {
-      setGroupData({
-        ...groupData,
-        position: parseInt(event.target.value),
-      });
-    }
+    // if (event.target.name === "position") {
+    //   setGroupData({
+    //     ...groupData,
+    //     position: parseInt(event.target.value),
+    //   });
+    // }
     if (event.target.name === "enabled") {
       event.target.value === "true" &&
         setGroupData({ ...groupData, enabled: true });
@@ -76,15 +76,34 @@ function GroupModal() {
       formData.append("seoText", groupData.seoKeywords);
     !!groupData.seoKeywords &&
       formData.append("seoTitle", groupData.seoKeywords);
-    !!groupData.seoKeywords &&
-      formData.append("enabled", groupData.seoKeywords);
+    !!groupData.enabled && formData.append("enabled", groupData.enabled);
     e.preventDefault();
     axios
       .post("http://142.93.237.244:9090/v1/groups", formData)
-      .then((response) => {
-        setCreatedGroup(response.data.id);
+      .then(() => {
+        axios
+          .get("http://142.93.237.244:9090/v1/groups-by-filter?all=true")
+          .then((response) => dispatch(fetchGroups(response.data)))
+          .catch((error) => console.log(error));
       })
       .catch((error) => console.log(error));
+    setGroupData({
+      nameUz: "",
+      nameRu: "",
+      nameEn: "",
+      descriptionUz: "",
+      descriptionRu: "",
+      descriptionEn: "",
+      position: 0,
+      parentGroup: "0",
+      fileImage: "",
+      seoDescription: "",
+      seoKeywords: "",
+      seoText: "",
+      seoTitle: "",
+      enabled: true,
+    });
+    formData = null;
   };
 
   return (
@@ -102,7 +121,6 @@ function GroupModal() {
         </Modal.Header>
         <Modal.Body>
           <form>
-            <hr className="my-4" />
             <div>
               <p className="mb-2 form-labe">Parent group</p>
               <div className="row">
@@ -328,29 +346,21 @@ function GroupModal() {
               />
             </div>
             <ModalFooter>
-              {!!createdGroup && (
+              <>
+                <button className="btn btn-default" type="reset">
+                  Cancel
+                </button>
                 <button
                   className="btn btn-primary"
-                  type="submit"
-                  onClick={() => dispatch(closeGroup())}
+                  type="button"
+                  onClick={(e) => {
+                    hendleSubmitData(e);
+                    dispatch(closeGroup());
+                  }}
                 >
-                  Finish
+                  Confirm
                 </button>
-              )}
-              {!createdGroup && (
-                <>
-                  <button className="btn btn-default" type="reset">
-                    Cancel
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    onClick={hendleSubmitData}
-                  >
-                    Confirm
-                  </button>
-                </>
-              )}
+              </>
             </ModalFooter>
           </form>
         </Modal.Body>

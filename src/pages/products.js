@@ -15,22 +15,35 @@ const Products = () => {
   const dispatch = useDispatch();
   const groups = useSelector((state) => state.groupsReducer);
   useEffect(() => {
+    getProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getProducts = () => {
     axios
       .get(
         "http://142.93.237.244:9090/v1/products-by-filter?all=true&page=1&pageSize=20"
       )
       .then((response) => dispatch(fetchProducts(response.data)))
       .catch((error) => console.log(error));
-  }, []);
+  };
 
   const deleteProduct = (id) => {
     axios
       .delete(`http://142.93.237.244:9090/v1/products/${id}`)
-      .then(() => window.location.reload())
+      .then(() =>
+        axios
+          .get(
+            "http://142.93.237.244:9090/v1/products-by-filter?all=true&page=1&pageSize=20"
+          )
+          .then((response) => dispatch(fetchProducts(response.data)))
+          .catch((error) => console.log(error))
+      )
       .catch((error) => console.log(error));
   };
 
   const productsObj = useSelector((state) => state.productsReducer);
+  console.log("productsObj", productsObj);
   return (
     <div>
       <div className="content-wrapper">

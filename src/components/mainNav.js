@@ -1,7 +1,20 @@
+import axios from "axios";
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import { BiSearch } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { logout } from "../store/actions";
 const MainNav = () => {
+  const dispatch = useDispatch();
+  const logOut = () => {
+    axios
+      .post("http://142.93.237.244:9090/v1/users/logout")
+      .then((response) => {
+        console.log(response);
+        dispatch(logout());
+      })
+      .catch((error) => console.log(error));
+  };
   return (
     <>
       <nav
@@ -119,7 +132,7 @@ const MainNav = () => {
                       </a>
                     </li>
                   </Dropdown.Item>
-                  <Dropdown.Item className="p-0" href="#/action-3">
+                  <Dropdown.Item className="p-0" onClick={logOut}>
                     <li>
                       <a className="dropdown-item" href="auth-login-basic.html">
                         <i className="bx bx-power-off me-2"></i>

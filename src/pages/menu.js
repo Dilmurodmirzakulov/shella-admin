@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { showGroup, showGroupEdit } from "../store/actions";
+import { fetchGroups, showGroup, showGroupEdit } from "../store/actions";
 import { FiChevronDown } from "react-icons/fi";
 import { Table, Button, Collapse } from "react-bootstrap";
 import { useState } from "react";
@@ -14,10 +14,14 @@ const Menu = () => {
   const groups = useSelector((state) => state.groupsReducer);
 
   const deleteGroup = (id) => {
-    console.log("delete");
     axios
       .delete(`http://142.93.237.244:9090/v1/groups/${id}`)
-      .then(() => window.location.reload())
+      .then(() =>
+        axios
+          .get("http://142.93.237.244:9090/v1/groups-by-filter?all=true")
+          .then((response) => dispatch(fetchGroups(response.data)))
+          .catch((error) => console.log(error))
+      )
       .catch((err) => console.log(err));
   };
   return (
@@ -190,7 +194,12 @@ const Menu = () => {
                                                   <BiEdit className="regular-ic" />
                                                 </button>
                                                 <button className="btn badge bg-label-danger m-1">
-                                                  <AiOutlineDelete className="regular-ic" />
+                                                  <AiOutlineDelete
+                                                    className="regular-ic"
+                                                    onClick={() =>
+                                                      deleteGroup(group.id)
+                                                    }
+                                                  />
                                                 </button>
                                                 <button className="btn badge bg-label-primary m-1">
                                                   <AiOutlineFolderView className="regular-ic" />

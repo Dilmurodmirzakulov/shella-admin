@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeProduct, closeProductEdit } from "../../store/actions";
+import {
+  closeProduct,
+  closeProductEdit,
+  fetchProducts,
+  showImage,
+} from "../../store/actions";
 import Collapse from "react-bootstrap/Collapse";
 import { ModalFooter } from "react-bootstrap";
 import axios from "axios";
@@ -18,23 +23,30 @@ function ProductEditModal() {
   const [createdProduct, setCreatedProduct] = useState(null);
   const groups = useSelector((state) => state.groupsReducer);
 
-  const [productData, setProductData] = useState({
-    url: (shownProduct || {}).url || "",
-    price: (shownProduct || {}).price || "",
-    seoDescription: (shownProduct || {}).seoDescription || "",
-    seoKeywords: (shownProduct || {}).seoKeywords || "",
-    seoText: (shownProduct || {}).seoText || "",
-    seoTitle: (shownProduct || {}).seoTitle || "",
-    enabled: true,
-    nameUz: (shownProduct || {}).nameUz || "",
-    nameRu: (shownProduct || {}).nameRu || "",
-    nameEn: (shownProduct || {}).nameEn || "",
-    descriptionUz: (shownProduct || {}).descriptionUz || "",
-    descriptionRu: (shownProduct || {}).descriptionRu || "",
-    descriptionEn: (shownProduct || {}).descriptionEn || "",
-    position: 0,
-    groupId: (shownProduct || {}).groupId || "",
-  });
+  const [productData, setProductData] = useState(null);
+
+  useEffect(() => {
+    setProductData({
+      url: (shownProduct || {}).url || "",
+      price: (shownProduct || {}).price || 1,
+      seoDescription: (shownProduct || {}).seoDescription || "",
+      seoKeywords: (shownProduct || {}).seoKeywords || "",
+      seoText: (shownProduct || {}).seoText || "",
+      seoTitle: (shownProduct || {}).seoTitle || "",
+      enabled: (shownProduct || {}).enabled || true,
+      nameUz: (shownProduct || {}).nameUz || "",
+      nameRu: (shownProduct || {}).nameRu || "",
+      nameEn: (shownProduct || {}).nameEn || "",
+      descriptionUz: (shownProduct || {}).descriptionUz || "",
+      descriptionRu: (shownProduct || {}).descriptionRu || "",
+      descriptionEn: (shownProduct || {}).descriptionEn || "",
+      position: (shownProduct || {}).position || 1,
+      groupId: (shownProduct || {}).groupId || "",
+    });
+    setCreatedProduct();
+  }, [shownProduct]);
+
+  console.log(productData);
 
   const hendleInput = (event) => {
     setProductData({ ...productData, [event.target.name]: event.target.value });
@@ -58,14 +70,17 @@ function ProductEditModal() {
   const hendleSubmitData = (e) => {
     e.preventDefault();
     axios
-      .post("http://142.93.237.244:9090/v1/products", productData)
+      .put(
+        `http://142.93.237.244:9090/v1/products/${(shownProduct || {}).id}`,
+        productData
+      )
       .then((response) => setCreatedProduct(response.data.id))
       .catch((error) => console.log(error));
   };
 
   const getImage = (event) => {
     const file = event.target.files[0];
-    setPrImage(file); 
+    setPrImage(file);
   };
 
   const uploadImage = (imageFile, productId) => {
@@ -74,16 +89,36 @@ function ProductEditModal() {
     formData.append("fileImage", imageFile);
 
     axios
-      .post("http://142.93.237.244:9090/v1/product-images", formData)
+      .post("http://142.93.237.244:9090/v1/product-images", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
         console.log("Success", response);
-        setCreatedImage((x) =>
-          !!x ? [...x, response.data.image] : [response.data.image]
-        );
+        setCreatedImage((x) => (!!x ? [...x, response.data] : [response.data]));
       })
       .catch((error) => {
         console.log(error);
       });
+    setPrImage();
+  };
+
+  console.log("created", createdImage);
+
+  const deleteImage = (image) => {
+    axios
+      .delete(`http://142.93.237.244:9090/v1/product-images/${image}`)
+      .then((response) => {
+        console.log(response.data);
+        axios
+          .get(
+            "http://142.93.237.244:9090/v1/products-by-filter?all=true&page=1&pageSize=20"
+          )
+          .then((response) => dispatch(fetchProducts(response.data)))
+          .catch((error) => console.log(error));
+      })
+      .catch((error) => console.log(error));
   };
 
   const getGroupValue = (event) => {
@@ -104,28 +139,29 @@ function ProductEditModal() {
       <Modal
         size="lg"
         show={productEditModal}
-        onHide={() => dispatch(closeProductEdit())}
+        onHide={() => {
+          dispatch(closeProductEdit());
+          setCreatedImage();
+        }}
         aria-labelledby="example-modal-sizes-title-lg"
       >
         <Modal.Header closeButton>
           <Modal.Title id="example-modal-sizes-title-lg">
-            Edit product
+            {!shownProduct ? "Create product" : "Edit product"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form>
             <div>
-              <label className="mb-2 form-labe" htmlFor="group-url">
+              <label htmlFor="name-uz" className="mb-2 form-labe">
                 URL
               </label>
               <input
-                className="form-control"
                 type="text"
-                id="group-url"
+                className="form-control mb-2"
+                placeholder="url"
                 name="url"
-                placeholder="url-product"
-                defaultValue={(shownProduct || {}).url || ""}
-                onLoad={hendleInput}
+                defaultValue={(shownProduct || {}).url}
                 onChange={(e) => hendleInput(e)}
               />
             </div>
@@ -134,11 +170,7 @@ function ProductEditModal() {
               <p className="mb-2 form-labe">Product Group</p>
               <div className="row">
                 <div className="col-12 col-md-6">
-                  <select
-                    className="form-control"
-                    defaultValue={"DEFAULT"}
-                    onChange={getGroupValue}
-                  >
+                  <select className="form-control" onChange={getGroupValue}>
                     <option value="DEFAULT" disabled>
                       Select Group
                     </option>
@@ -160,7 +192,6 @@ function ProductEditModal() {
                   <div className="col-12 col-md-6">
                     <select
                       className="form-control"
-                      defaultValue={"DEFAULT2"}
                       onChange={getChildGroupValue}
                     >
                       <option value="DEFAULT2" disabled>
@@ -172,7 +203,6 @@ function ProductEditModal() {
                             <option
                               key={child.id + "select-option"}
                               value={child.id}
-                              // onClick={getGroupValue}
                             >
                               {child.nameUz}
                             </option>
@@ -181,25 +211,6 @@ function ProductEditModal() {
                     </select>
                   </div>
                 )}
-                {/* {!!selectedGroup &&
-                  ((selectedGroup || {}).child && []).length > 0 &&
-                  selectedGroup.child.map((child) => {
-                    return (
-                      <div className="col-12 col-md-6">
-                        <input
-                          className="form-control"
-                          type="text"
-                          id="group-url"
-                          placeholder="Parent group"
-                          name="groupId"
-                          defaultValue={(shownProduct || {}).groupId || ""}
-                          // value={shownProduct.url || ""}
-                          onChange={(e) => hendleInput(e)}
-                          onLoad={hendleInput}
-                        />
-                      </div>
-                    );
-                  })} */}
               </div>
             </div>
             <hr className="my-4" />
@@ -211,10 +222,8 @@ function ProductEditModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Maxsulot nomi"
-                defaultValue={(shownProduct || {}).nameUz || ""}
-                // defaultValue={nameUz}
                 name="nameUz"
-                onLoad={hendleInput}
+                defaultValue={(shownProduct || {}).nameUz}
                 onChange={(e) => hendleInput(e)}
               />
               <label htmlFor="description-uz" className="mb-2 form-labe">
@@ -224,9 +233,8 @@ function ProductEditModal() {
                 type="text"
                 className="form-control"
                 placeholder="Maxsulot tasnifi..."
-                defaultValue={(shownProduct || {}).descriptionUz || ""}
-                // defaultValue={descriptionUz}
                 name="descriptionUz"
+                defaultValue={(shownProduct || {}).descriptionUz}
                 onChange={(e) => hendleInput(e)}
               />
             </div>
@@ -239,10 +247,9 @@ function ProductEditModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Product name"
-                defaultValue={(shownProduct || {}).nameRu || ""}
-                // value={nameRu}
                 name="nameRu"
                 onChange={(e) => hendleInput(e)}
+                defaultValue={(shownProduct || {}).nameRu}
               />
               <label htmlFor="description-ru" className="mb-2 form-labe">
                 Описание
@@ -251,10 +258,9 @@ function ProductEditModal() {
                 type="text"
                 className="form-control"
                 placeholder="Product description..."
-                defaultValue={(shownProduct || {}).descriptionRu || ""}
-                // value={descriptionRu}
                 name="descriptionRu"
                 onChange={(e) => hendleInput(e)}
+                defaultValue={(shownProduct || {}).descriptionRu}
               />
             </div>
             <hr className="my-4" />
@@ -266,10 +272,9 @@ function ProductEditModal() {
                 type="text"
                 className="form-control mb-2"
                 placeholder="Product name"
-                defaultValue={(shownProduct || {}).nameEu || ""}
-                // value={nameEn}
                 name="nameEn"
                 onChange={(e) => hendleInput(e)}
+                defaultValue={(shownProduct || {}).nameEn}
               />
               <label htmlFor="description-eu" className="mb-2 form-labe">
                 Description
@@ -278,10 +283,9 @@ function ProductEditModal() {
                 type="text"
                 className="form-control"
                 placeholder="Product description..."
-                defaultValue={(shownProduct || {}).descriptionEu || ""}
-                // value={descriptionEn}
                 name="descriptionEn"
                 onChange={(e) => hendleInput(e)}
+                defaultValue={(shownProduct || {}).descriptionEn}
               />
             </div>
             <hr className="my-4" />
@@ -294,9 +298,8 @@ function ProductEditModal() {
                 id="group-position"
                 className="form-control"
                 placeholder="Group position"
-                // defaultValue={(shownProduct || {}).position || ""}
-                // value={position}
                 name="position"
+                defaultValue={(shownProduct || {}).position}
                 onChange={(e) => hendleInput(e)}
               />
             </div>
@@ -310,10 +313,9 @@ function ProductEditModal() {
                 id="product-price"
                 className="form-control"
                 placeholder="Product price"
-                // defaultValue={(shownProduct || {}).price || ""}
-                // value={price}
                 name="price"
                 onChange={(e) => hendleInput(e)}
+                defaultValue={(shownProduct || {}).price}
               />
             </div>
             <hr className="my-4" />
@@ -324,11 +326,8 @@ function ProductEditModal() {
                 name="enabled"
                 id="product-enabled"
                 className="form-check-input"
-                // defaultValue={(shownProduct || {}).enabled || ""}
-                // checked
-                // value={shownProduct.enabled}
-                // value={enabled}
                 value={true}
+                defaultChecked={!(shownProduct || {}).enabled ? true : false}
                 onChange={hendleInput}
               />
               <label
@@ -343,8 +342,8 @@ function ProductEditModal() {
                 id="product-disabled"
                 className="form-check-input"
                 value={false}
+                defaultChecked={(shownProduct || {}).enabled ? true : false}
                 onChange={hendleInput}
-                // value={shownProduct.enabled}
               />
               <label
                 htmlFor="product-disabled"
@@ -371,9 +370,8 @@ function ProductEditModal() {
                   type="text"
                   className="form-control mb-2"
                   placeholder="SEO title"
-                  // defaultValue={(shownProduct || {}).nameEu || ""}
-                  // value={nameEn}
                   name="seoTitle"
+                  defaultValue={(shownProduct || {}).seoTitle}
                   onChange={(e) => hendleInput(e)}
                 />
                 <label htmlFor="name-eu" className="mb-2 form-labe">
@@ -383,9 +381,8 @@ function ProductEditModal() {
                   type="text"
                   className="form-control mb-2"
                   placeholder="SEO name"
-                  // defaultValue={(shownProduct || {}).nameEu || ""}
-                  // value={nameEn}
                   name="seoText"
+                  defaultValue={(shownProduct || {}).seoText}
                   onChange={(e) => hendleInput(e)}
                 />
                 <label htmlFor="name-eu" className="mb-2 form-labe">
@@ -395,9 +392,8 @@ function ProductEditModal() {
                   type="text"
                   className="form-control mb-2"
                   placeholder="SEO keywords"
-                  // defaultValue={(shownProduct || {}).nameEu || ""}
-                  // value={nameEn}
                   name="seoKeywords"
+                  defaultValue={(shownProduct || {}).seoKeywords}
                   onChange={(e) => hendleInput(e)}
                 />
                 <label htmlFor="description-eu" className="mb-2 form-labe">
@@ -407,9 +403,8 @@ function ProductEditModal() {
                   type="text"
                   className="form-control"
                   placeholder="SEO description..."
-                  // defaultValue={(shownProduct || {}).descriptionEu || ""}
-                  // value={descriptionEn}
                   name="seoDescription"
+                  defaultValue={(shownProduct || {}).seoDescription}
                   onChange={(e) => hendleInput(e)}
                 />
               </div>
@@ -417,7 +412,6 @@ function ProductEditModal() {
 
             {(!!createdProduct || !!shownProduct) && (
               <div>
-                l
                 <hr className="my-4" />
                 <label htmlFor="group-image" className="mb-2 form-labe">
                   Product image
@@ -429,59 +423,100 @@ function ProductEditModal() {
                   placeholder="Group image"
                   onChange={getImage}
                 />
-                {!!shownProduct && !!(shownProduct || {}).images.length > 0 && (
-                  <div className="d-flex">
-                    {shownProduct.images.map((image) => {
+                <div className="d-flex me-3">
+                  {!!shownProduct &&
+                    !!(shownProduct || {}).images.length > 0 &&
+                    shownProduct.images.map((image) => {
                       return (
                         <div
                           className="shown-group-image me-3"
                           key={
-                            image +
+                            image.id +
                             `${createdProduct || shownProduct.id || "55"}`
                           }
                         >
                           <img
                             className="img-fluid"
-                            src={`http://142.93.237.244:9090/v1/public/groups/${image.image}`}
+                            src={`http://142.93.237.244:9090/v1/public/products/${image.image}`}
                             alt=""
                           />
-                          <button className="btn bg-label-danger delete-btn">
+                          <button
+                            className="btn bg-label-danger delete-btn"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              deleteImage(image.id);
+                              // dispatch(closeProductEdit());
+                              setCreatedImage();
+                            }}
+                          >
                             <AiOutlineDelete />
                           </button>
-                          <button className="btn bg-label-info view-btn">
+                          <button
+                            className="btn bg-label-info view-btn"
+                            onClick={(e) => {
+                              // e.stopPropagation();
+                              e.preventDefault();
+                              dispatch(
+                                showImage(
+                                  `http://142.93.237.244:9090/v1/public/products/${image.image}`
+                                )
+                              );
+                            }}
+                          >
                             <AiOutlineEye />
                           </button>
                         </div>
                       );
                     })}
-                  </div>
-                )}
-                {!!createdImage && createdImage.length > 0 && (
-                  <div className="d-flex mr-3">
-                    {createdImage.map((image) => {
+                  {!!createdImage &&
+                    createdImage.length > 0 &&
+                    createdImage.map((image) => {
                       return (
-                        <div className="shown-group-image me-3">
+                        <div
+                          className="shown-group-image me-3"
+                          key={image.id + "created-image"}
+                        >
                           <img
                             className="img-fluid"
-                            src={`http://142.93.237.244:9090/v1/public/products/${image}`}
+                            src={`http://142.93.237.244:9090/v1/public/products/${image.image}`}
                             alt=""
                           />
-                          <button className="btn bg-label-danger delete-btn">
+                          <button
+                            className="btn bg-label-danger delete-btn"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              deleteImage(image.id);
+                              // dispatch(closeProductEdit());
+                              setCreatedImage();
+                            }}
+                          >
                             <AiOutlineDelete />
                           </button>
-                          <button className="btn bg-label-info view-btn">
+                          <button
+                            className="btn bg-label-info view-btn"
+                            onClick={(e) => {
+                              // e.stopPropagation();
+                              e.preventDefault();
+                              dispatch(
+                                showImage(
+                                  `http://142.93.237.244:9090/v1/public/products/${image.image}`
+                                )
+                              );
+                            }}
+                          >
                             <AiOutlineEye />
                           </button>
                         </div>
                       );
                     })}
-                  </div>
-                )}
-                {!!prImage && !!createdProduct && (
+                </div>
+                {!!prImage && (
                   <button
                     className="btn btn-primary mt-4"
                     type="button"
-                    onClick={() => uploadImage(prImage, createdProduct)}
+                    onClick={() =>
+                      uploadImage(prImage, (shownProduct || {}).id)
+                    }
                   >
                     Upload image
                   </button>
@@ -494,7 +529,10 @@ function ProductEditModal() {
                 <button
                   className="btn btn-primary"
                   type="submit"
-                  onClick={() => dispatch(closeProduct())}
+                  onClick={() => {
+                    dispatch(closeProductEdit());
+                    setCreatedImage();
+                  }}
                 >
                   Finish
                 </button>

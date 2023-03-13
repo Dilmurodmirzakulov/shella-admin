@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeGroup, closeGroupEdit } from "../../store/actions";
+import { closeGroup, closeGroupEdit, showImage } from "../../store/actions";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { Collapse, ModalFooter } from "react-bootstrap";
 import axios from "axios";
-import { getGroupNameById } from "../../plugins/custom";
 function GroupEditModal() {
   const dispatch = useDispatch();
   const { shownGroup } = useSelector((state) => state.modalsReducer);
@@ -16,6 +15,7 @@ function GroupEditModal() {
   const [done, setDone] = useState(null);
 
   const [groupData, setGroupData] = useState({
+    url: (shownGroup || {}).url || "",
     nameUz: (shownGroup || {}).nameUz || "",
     nameRu: (shownGroup || {}).nameRu || "",
     nameEn: (shownGroup || {}).nameEn || "",
@@ -53,6 +53,7 @@ function GroupEditModal() {
 
   const hendleSubmitData = (e) => {
     let formData = new FormData();
+    !!groupData.url && formData.append("url", groupData.url);
     !!groupData.nameUz && formData.append("nameUz", groupData.nameUz);
     !!groupData.nameRu && formData.append("nameRu", groupData.nameRu);
     !!groupData.nameEn && formData.append("nameEn", groupData.nameEn);
@@ -77,7 +78,6 @@ function GroupEditModal() {
     !!groupData.seoKeywords &&
       formData.append("enabled", groupData.seoKeywords);
     e.preventDefault();
-    console.log(formData);
     axios
       .put(`http://142.93.237.244:9090/v1/groups/${shownGroup.id}`, formData)
       .then((response) => {
@@ -87,7 +87,6 @@ function GroupEditModal() {
       .catch((error) => console.log(error));
   };
 
-  console.log(shownGroup);
   return (
     <>
       <Modal
@@ -103,7 +102,7 @@ function GroupEditModal() {
         </Modal.Header>
         <Modal.Body>
           <form>
-            {/* <div>
+            <div>
               <label className="mb-2 form-labe" htmlFor="group-url">
                 URL
               </label>
@@ -117,7 +116,7 @@ function GroupEditModal() {
                 onChange={hendleInput}
               />
             </div>
-            <hr className="my-4" /> */}
+            <hr className="my-4" />
             <div>
               <p className="mb-2 form-labe">Parent group</p>
               <div className="row">
@@ -361,7 +360,18 @@ function GroupEditModal() {
                   <button className="btn bg-label-danger delete-btn">
                     <AiOutlineDelete />
                   </button>
-                  <button className="btn bg-label-info view-btn">
+                  <button
+                    className="btn bg-label-info view-btn"
+                    onClick={(e) => {
+                      // e.stopPropagation();
+                      e.preventDefault();
+                      dispatch(
+                        showImage(
+                          `http://142.93.237.244:9090/v1/public/groups/${shownGroup.image}`
+                        )
+                      );
+                    }}
+                  >
                     <AiOutlineEye />
                   </button>
                 </div>

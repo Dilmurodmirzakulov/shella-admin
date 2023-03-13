@@ -5,6 +5,7 @@ import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/css/core.css";
 import "./assets/demo.css";
+import "./assets/page-auth.css"
 import "./assets/css/theme-default.css";
 import "./assets/custom.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
